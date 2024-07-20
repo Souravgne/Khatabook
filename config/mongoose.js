@@ -1,18 +1,20 @@
-const mongoose = require('mongoose')
-const debuglog = require("debug")("development:mongooseconfig"); 
-const mongooseconnection = require('./config/mongoose')
+const mongoose = require('mongoose');
+const debuglog = require("debug")("development:mongooseconfig");
 
-mongoose.connect("mongodb://127.0.0.1:27017/Khatabook")
+// Consolidated database connection configuration
+mongoose.connect("mongodb://127.0.0.1:27017/Khatabookdb", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
 
-const db = mongoose.connection; 
+const db = mongoose.connection;
 
-db.on("error" , function(err){
-    debuglog(err); 
-})
+db.on("error", function(err) {
+    debuglog(`Error connecting to the database: ${err.message}`);
+});
 
+db.on("open", function() {
+    debuglog("Successfully connected to the Khatabook database.");
+});
 
-db.on("open" , function(){
-    debuglog("connected to db...")
-})
-
-module.exports = db;    
+module.exports = db;

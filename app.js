@@ -16,10 +16,23 @@ app.get("/", function(req, res) {
    
     res.render("index");
 });
-app.post("/", function(req, res) {
-    let {email} = req.body; 
-    // console.log(/record/email)
-    res.redirect(`/record/${email}`);
+app.post("/",async function(req, res) {
+    const email = req.body.email;
+    
+    try {
+        const user = await userModel.findOne({ email: email });
+        console.log(user);
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+        
+        // Render createrecord view, passing the found user object
+        res.redirect(`/record/${email}`);
+    } catch (error) {
+        console.error('Error finding user:', error);
+        return res.status(500).send('Internal Server Error');
+    }
+    
 });
 
 // Corrected route for displaying the signup form using GET method
@@ -46,20 +59,20 @@ app.post("/signup", async function(req, res) {
 
 // Route for handling record creation associated with a user
 app.get("/record/:username", function(req, res){
-    const username = req.params.email;
-    
+    const username = req.params.username;
+    // console.log(username)
     // Logic to handle record creation based on userId
     
     res.render("record", {username });
 });
 
 // Adjusted route for finding a user by username and rendering createrecord view
-app.get("/createrecord/:username", async function(req, res){
-    const username = req.params.username;
+app.get("/createrecord/:email", async function(req, res){
+    const email = req.params.email;
     
     try {
-        const user = await userModel.findOne({ username: username });
-        console.log(user)
+        const user = await userModel.findOne({ email: email });
+        console.log(user);
         if (!user) {
             return res.status(404).send('User not found');
         }
@@ -71,6 +84,7 @@ app.get("/createrecord/:username", async function(req, res){
         return res.status(500).send('Internal Server Error');
     }
 });
+
 
 // Start server
 app.listen(3000, () => console.log('Server running on port 3000'));
